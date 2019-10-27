@@ -1458,11 +1458,11 @@ INT8U MCP_CAN::disOneShotTX(void)
 *********************************************************************************************************/
 INT8U MCP_CAN::startCharging(float voltage, float current, int address)
 {
-    int     v = (int)(voltage * 10);
-    int     i = (int)(current * 10);
-    uint8_t messageCharger[5] = { (v >> 8) & 0xFF, v & 0xFF, (i >> 8) & 0xFF, i & 0xFF, 0 }; // Los 5 bytes que enviamos al Cargador
+    uint8_t v = (uint8_t)(voltage * 10);
+    uint8_t i = (uint8_t)(current * 10);
+    uint8_t messageCharger[5] = { (uint8_t)(v >> 8) & 0xFF, v & 0xFF, (i >> 8) & 0xFF, i & 0xFF, 0 }; // Los 5 bytes que enviamos al Cargador
 
-    int res = CAN.sendMsgBuf(address, 1, 5 * 8, messageCharger);
+    int res = sendMsgBuf((uint8_t)address, 1, 5 * 8, messageCharger);
 
     return res;
 }
@@ -1476,7 +1476,7 @@ INT8U MCP_CAN::queryBMS(int moduleID, int shuntVoltageMillivolts)
 {
     uint8_t messageBMS[2] = { (shuntVoltageMillivolts >> 8) & 0xFF, shuntVoltageMillivolts & 0xFF };  // Los 2 bytes que enviamos al BMS
 
-    int res = CAN.sendMsgBuf(300 + 10 * moduleID, 1, 2 * 8, messageBMS);
+    int res = sendMsgBuf(300 + 10 * moduleID, 1, 2 * 8, messageBMS);
 
     return res;
 }

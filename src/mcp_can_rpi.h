@@ -160,7 +160,7 @@ public:
     INT8U enOneShotTX(void);                                          // Enable one-shot transmission
     INT8U disOneShotTX(void);                                         // Disable one-shot transmission
 
-    INT8U startCharging(int voltage, int current, int address);       // Start charging
+    INT8U startCharging(float voltage, float current, int address);   // Start charging
     INT8U queryBMS(int moduleID, int shuntVoltageMillivolts);         // Query BMS
 
     bool setupInterruptGpio();
