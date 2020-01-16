@@ -42,10 +42,11 @@ MCP_CAN CAN(0, 10000000, IntPIN);  // (No hay que tocar nada aqui)
 void printCANMsg();
 void readIncomingCANMsg();
 void printData();
+void saveData();
 
 // data -> [voltajes, temperaturas, tension cargador, corriente cargador]
-int     data[nBMS * 14 + 3];                    // Variables a leer
-uint8_t messageBMS[2] = { 0, 0 };               // Los 2 bytes que vamos a enviar al BMS
+int  data[nBMS * 14 + 3];                       // Variables a leer
+char fileName = "datos.txt";
 
 int main()
 {
@@ -84,6 +85,7 @@ int main()
         CAN.startCharging(voltage, intensidad, chargerID);
 
         usleep(1000000);
+        saveData();
     }
     return 0;
 }
@@ -166,6 +168,25 @@ void printData()
     }
 
     printf("\nCharger: V = %d \t I = %d \t Flag = %d", data[3 * nBMS], data[3 * nBMS + 1], data[3 * nBMS + 2]);
+}
+
+
+void saveData()
+{
+    FILE *file;
+
+    file = fopen(fileName, "w");
+    fprintf(file, "[");
+
+    for (int i = 0; i < nBMS; i++)
+    {
+        for (int j = 0; j < 14; j++)
+        {
+            fprintf(file, " %d ,", data[14 * i + j]);
+        }
+    }
+
+    fprintf(file, " %d , %d , %d ]", data[14 * nBMS] * 100, data[14 * nBMS + 1] * 100, data[14 * nBMS + 2] * 100);
 }
 
 
