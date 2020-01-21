@@ -28,7 +28,7 @@
 #define DEBUG_MODE                1           // Muestra en la consola más información
 
 #define IntPIN                    25          // Pin de interrupciones es GPIO 25
-#define nBMS                      0           // Número de celdas
+#define nBMS                      3           // Número de celdas
 #define chargerID                 0x1806E7F4  // ID del cargador
 #define tensionMaxCarga           90          // Tensión máxima
 #define intensidadMaxCarga        5           // Intensidad de carga
@@ -46,7 +46,7 @@ void saveData();
 
 // data -> [voltajes, temperaturas, tension cargador, corriente cargador]
 int data[nBMS * 14 + 3];                        // Variables a leer
-char fileName = "datos.txt";
+char fileName[15] = "datos.txt";
 
 int main()
 {
@@ -60,6 +60,11 @@ int main()
 	// Inicialización wiringPi e inicializamos interrupciones
 	wiringPiSetup();
 	wiringPiISR(IntPIN, INT_EDGE_FALLING, readIncomingCANMsg);
+
+	// Inicializar todos los datos a 0
+	for (int i = 0; i < nBMS*14+3; i++) {
+		data[i] = 0;
+	}
 
 	/* Inicializamos el bus CAN:
 	 * INT8U begin(INT8U idmodeset, INT8U speedset, INT8U clockset);
@@ -81,10 +86,11 @@ int main()
 		for (int i = 0; i < nBMS; i++)
 		{
 			CAN.queryBMS(i, shuntVoltageMillivolts);
+			usleep(1000000);
 		}
-		CAN.startCharging(tensionMaxCarga, intensidadMaxCarga, chargerID);
 
-		usleep(1000000);
+		//CAN.startCharging(tensionMaxCarga, intensidadMaxCarga, chargerID);
+
 		saveData();
 	}
 	return 0;
@@ -120,14 +126,14 @@ void readIncomingCANMsg()
 			{
 				for (int i = 0; i < 4; i++)
 				{
-					data[n * 12 + m * 4 + i] = (buf[2 * i] << 8) + buf[2 * i + 1];
+					data[n * 14 + m * 4 + i] = (buf[2 * i] << 8) + buf[2 * i + 1];
 				}
 			}
 			else if (m == 3)
 			{
 				for (int i = 0; i < 2; i++)
 				{
-					data[n * 12 + m * 4 + i] = buf[i] - 40;
+					data[n * 14 + m * 4 + i] = buf[i] - 40;
 				}
 			}
 		}
@@ -176,7 +182,7 @@ void saveData()
 {
 	FILE *file;
 
-	file = fopen(fileName, "w");
+	file = fopen(fileName, "w+");
 	fprintf(file, "[");
 
 	for (int i = 0; i < nBMS; i++)
@@ -188,6 +194,7 @@ void saveData()
 	}
 
 	fprintf(file, " %d , %d , %d ]", data[14 * nBMS] * 100, data[14 * nBMS + 1] * 100, data[14 * nBMS + 2] * 100);
+	fclose(file);
 }
 
 
