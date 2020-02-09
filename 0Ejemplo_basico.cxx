@@ -35,13 +35,16 @@ MCP_CAN CAN(0, 10000000, 16); // (No hay que tocar nada aqui)
 
 int main()
 {
-    printf("Welcome\n\n");
-    wiringPiISR(IntPIN, INT_EDGE_FALLING, printCANMsg);
+  printf("Welcome\n\n");
 
-    // Inicialización de los pines GPIO y del bus SPI en la Raspberry Pi
-    CAN.setupInterruptGpio();
-    CAN.setupSpi();
-    printf("GPIO Pins initialized & SPI started\n");
+  // Inicialización de los pines GPIO y del bus SPI en la Raspberry Pi
+  CAN.setupInterruptGpio();
+  CAN.setupSpi();
+  printf("GPIO Pins initialized & SPI started\n");
+
+  // Inicialización wiringPi e inicializamos interrupciones
+  wiringPiSetup();
+  wiringPiISR(IntPIN, INT_EDGE_FALLING, readIncomingCANMsg);
 
     /* Inicializamos el bus CAN:
      * INT8U begin(INT8U idmodeset, INT8U speedset, INT8U clockset);

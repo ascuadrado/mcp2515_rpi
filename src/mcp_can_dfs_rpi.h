@@ -1,6 +1,6 @@
 /*
     mcp_can_dfs_rpi.h
-  	This library is an adaptation of MCP_CAN library for Raspberry Pi 3 with wiringPi
+        This library is an adaptation of MCP_CAN library for Raspberry Pi 3 with wiringPi
     Copyright (C) 2017 Niryo
     All rights reserved.
 
@@ -17,27 +17,27 @@
     You should have received a copy of the GNU General Public License
     along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
-	--> Below the original license (from MCP_CAN library):
+        --> Below the original license (from MCP_CAN library):
 
-	mcp_can_dfs.h
-	2012 Copyright (c) Seeed Technology Inc.  All right reserved.
-	2017 Copyright (c) Cory J. Fowler  All Rights Reserved.
-	Author:Loovee
-	Contributor: Cory J. Fowler
-	2017-09-25
-	This library is free software; you can redistribute it and/or
-	modify it under the terms of the GNU Lesser General Public
-	License as published by the Free Software Foundation; either
-	version 2.1 of the License, or (at your option) any later version.
-	This library is distributed in the hope that it will be useful,
-	but WITHOUT ANY WARRANTY; without even the implied warranty of
-	MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
-	Lesser General Public License for more details.
-	You should have received a copy of the GNU Lesser General Public
-	License along with this library; if not, write to the Free Software
-	Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-
-	1301  USA
-*/
+        mcp_can_dfs.h
+        2012 Copyright (c) Seeed Technology Inc.  All right reserved.
+        2017 Copyright (c) Cory J. Fowler  All Rights Reserved.
+        Author:Loovee
+        Contributor: Cory J. Fowler
+        2017-09-25
+        This library is free software; you can redistribute it and/or
+        modify it under the terms of the GNU Lesser General Public
+        License as published by the Free Software Foundation; either
+        version 2.1 of the License, or (at your option) any later version.
+        This library is distributed in the hope that it will be useful,
+        but WITHOUT ANY WARRANTY; without even the implied warranty of
+        MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the GNU
+        Lesser General Public License for more details.
+        You should have received a copy of the GNU Lesser General Public
+        License along with this library; if not, write to the Free Software
+        Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-
+        1301  USA
+ */
 
 #ifndef MCP_CAN_DFS_RPI_H
 #define MCP_CAN_DFS_RPI_H

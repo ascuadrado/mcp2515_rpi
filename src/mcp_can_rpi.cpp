@@ -1456,11 +1456,11 @@ INT8U MCP_CAN::disOneShotTX(void)
 ** Function name:           startCharging
 ** Descriptions:            Starts charging at voltage and current specified
 *********************************************************************************************************/
-INT8U MCP_CAN::startCharging(float voltage, float current, int address)
+INT8U MCP_CAN::queryCharger(float voltage, float current, int address, int charge)
 {
     uint8_t v = (uint8_t)(voltage * 10);
     uint8_t i = (uint8_t)(current * 10);
-    uint8_t messageCharger[5] = { (uint8_t)(v >> 8) & 0xFF, v & 0xFF, (i >> 8) & 0xFF, i & 0xFF, 0 }; // Los 5 bytes que enviamos al Cargador
+    uint8_t messageCharger[5] = { (uint8_t)(v >> 8) & 0xFF, v & 0xFF, (i >> 8) & 0xFF, i & 0xFF, charge}; // Los 5 bytes que enviamos al Cargador
 
     int res = sendMsgBuf((uint8_t)address, 1, 5 * 8, messageCharger);
 

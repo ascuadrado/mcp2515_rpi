@@ -1,5 +1,5 @@
 /*
- *  ejemplo.cxx
+ *  2PruebaFinal.cxx
  *  Alberto Sánchez Cuadrado
  *
  *  Ejemplo de utilización de la librería CAN del ISC:
@@ -45,7 +45,7 @@ void printData();
 void saveData();
 
 // data -> [voltajes, temperaturas, tension cargador, corriente cargador]
-int data[nBMS * 14 + 3];                        // Variables a leer
+int data[nBMS * 14 + 7];                        // Variables a leer
 char fileName[15] = "datos.txt";
 
 int main()
@@ -62,7 +62,7 @@ int main()
 	wiringPiISR(IntPIN, INT_EDGE_FALLING, readIncomingCANMsg);
 
 	// Inicializar todos los datos a 0
-	for (int i = 0; i < nBMS*14+3; i++) {
+	for (int i = 0; i < nBMS*14+7; i++) {
 		data[i] = 0;
 	}
 
@@ -193,7 +193,7 @@ void saveData()
 		}
 	}
 
-	fprintf(file, " %d , %d , %d ]", data[14 * nBMS] * 100, data[14 * nBMS + 1] * 100, data[14 * nBMS + 2] * 100);
+	fprintf(file, " %d , %d , %d ]", data[14 * nBMS], data[14 * nBMS + 1], data[14 * nBMS + 2]);
 	fclose(file);
 }
 
