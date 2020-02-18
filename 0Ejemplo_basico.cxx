@@ -6,7 +6,8 @@
  *    Muestra cualquier mensaje que llegue
  *
  * Conexiones:
- * Usaremos el bus SPI nº 0 de la Raspberry Pi para comunicarnos con el módulo mcp2515
+ * Usaremos el bus SPI nº 0 de la Raspberry Pi
+ * para comunicarnos con el módulo mcp2515
  * MOSI (GPIO10);
  * MISO (GPIO9);
  * SCLK (GPIO11);
@@ -35,16 +36,21 @@ MCP_CAN CAN(0, 10000000, 16); // (No hay que tocar nada aqui)
 
 int main()
 {
-  printf("Welcome\n\n");
+    /* -----------------------------------------------------------------
+     * SETUP
+     * -----------------------------------------------------------------
+     */
 
-  // Inicialización de los pines GPIO y del bus SPI en la Raspberry Pi
-  CAN.setupInterruptGpio();
-  CAN.setupSpi();
-  printf("GPIO Pins initialized & SPI started\n");
+    printf("Welcome\n\n");
 
-  // Inicialización wiringPi e inicializamos interrupciones
-  wiringPiSetup();
-  wiringPiISR(IntPIN, INT_EDGE_FALLING, readIncomingCANMsg);
+    // Inicialización de los pines GPIO y del bus SPI en la Raspberry Pi
+    CAN.setupInterruptGpio();
+    CAN.setupSpi();
+    printf("GPIO Pins initialized & SPI started\n");
+
+    // Inicialización wiringPi e inicializamos interrupciones
+    wiringPiSetup();
+    wiringPiISR(IntPIN, INT_EDGE_FALLING, readIncomingCANMsg);
 
     /* Inicializamos el bus CAN:
      * INT8U begin(INT8U idmodeset, INT8U speedset, INT8U clockset);
@@ -59,13 +65,20 @@ int main()
         printf("Init CAN BUS Shield again\n\n");
         usleep(1000000);
     }
-    printf("CAN BUS Shield init ok!\n");                  // El bus ya está funcionando
-    uint8_t data[2] = { 0, 0 };                           // Los 2 bytes que vamos a enviar por el bus CAN
-//------------------------------------------
+    printf("CAN BUS Shield init ok!\n");   // El bus ya está funcionando
+
+    // Los 2 bytes que vamos a enviar por el bus CAN
+    uint8_t data[2] = { 0, 0 };
+
     while (1)
     {
-        int result = CAN.sendMsgBuf(0x12C, 1, 16, data);
-        printf("\n\nMessage sent: %d\n", result);
+        /* -----------------------------------------------------------------
+         * LOOP
+         * -----------------------------------------------------------------
+         */
+
+        //int result = CAN.sendMsgBuf(0x12C, 1, 16, data);
+        //printf("\n\nMessage sent: %d\n", result);
 
         usleep(1000000);
     }
@@ -82,7 +95,7 @@ void printCANMsg()
     if (CAN_MSGAVAIL == CAN.checkReceive())  // check if data coming
     {
         // INT8U MCP_CAN::readMsgBuf(INT32U *id, INT8U *len, INT8U buf[])
-        // Read data rellena canId, len (longitud de lo recibido) y guarda los datos en buf
+        // Read data rellena canId, len y guarda los datos en buf
         CAN.readMsgBuf(&canId, &len, &buf[0]);
 
         printf("-----------------------------\n");
@@ -92,9 +105,10 @@ void printCANMsg()
         {
             printf("(%d)", buf[i]);
             printf("\t");
+            j
         }
     }
 }
 
 
-// ---------------------------------------------------------------------5
+// ---------------------------------------------------------------------------

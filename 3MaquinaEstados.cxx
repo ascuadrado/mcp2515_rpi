@@ -23,29 +23,31 @@
 // Librerías I/O
 #include <iostream>
 #include <unistd.h>
+#include <ctime>
 
-#include "src/mcp_can_rpi.h"                  // Librería CAN (mcp2515)
+#include "src/mcp_can_rpi.h"           // Librería CAN (mcp2515)
 
-#define DEBUG_MODE                1           // Muestra en la consola más información
+#define DEBUG_MODE                1    // Muestra en la consola más información
 
 // Setup Variables
-#define IntPIN                    25          // Pin de interrupciones es GPIO 25
+#define IntPIN                    25          // Pin interrupciones - GPIO 25
 #define proteccionesPIN           24          // Pin de control interrupciones
 #define nBMS                      3           // Número de celdas
 #define chargerID                 0x1806E7F4  // ID del cargador
 
 // Operation Variables
-#define tensionMaxCarga           90          // Tensión máxima
-#define intensidadMaxCarga        5           // Intensidad de carga
-#define shuntVoltageMillivolts    100         // Tensión en la que se empieza a balancear
-#define maxCellVoltage            4200        // Max tensión de cada celda (mV)
-#define minCellVoltage            2800        // Min tensión de cada celda (mV)
-#define maxTemp                   70          // Temp max en grados
+#define tensionMaxCarga           90      // Tensión máxima
+#define intensidadMaxCarga        5       // Intensidad de carga
+#define shuntVoltageMillivolts    100     // Tensión activación shunts
+#define maxCellVoltage            4200    // Max tensión de cada celda (mV)
+#define minCellVoltage            2800    // Min tensión de cada celda (mV)
+#define maxTemp                   70      // Temp max en grados
 
 // Data variables
-#define nDatos                    nBMS * 14 + 7;
-int  data[nDatos];                       // Variables a leer y guardar
-char fileName[15] = "datos.txt";
+#define nDatos                    nBMS * 14 + 9;
+int  data[nDatos];                    // Variables a leer y guardar
+char fileName[15] = "datos.txt";      // Fichero donde guardar datos
+
 enum
 {
     standby, charge, run
@@ -58,6 +60,7 @@ MCP_CAN CAN(0, 10000000, IntPIN);             // (No hay que tocar nada aqui)
 // Funciones lectura datos del bus CAN
 void readIncomingCANMsg();
 void saveData();
+void getTime(char *dateString);
 void queryAll(int charge);
 
 // Funciones manejo datos
@@ -66,6 +69,11 @@ int checkCellsOK(); // Return 0 if all cells ok
 
 int main()
 {
+    /* -----------------------------------------------------------------
+     * SETUP
+     * -----------------------------------------------------------------
+     */
+
     printf("Welcome\n\n");
     estado = standby;
 
@@ -79,7 +87,7 @@ int main()
     wiringPiISR(IntPIN, INT_EDGE_FALLING, readIncomingCANMsg);
 
     // Inicializar todos los datos a 0
-    for (int i = 0; i < nBMS * 14 + 7; i++)
+    for (int i = 0; i < nDatos; i++)
     {
         data[i] = 0;
     }
@@ -93,8 +101,13 @@ int main()
     }
     printf("CAN BUS Shield init ok!\n"); // El bus ya está funcionando
 
-    while (1)                            // Bucle infinito de funcionamiento
+    while (1)                            // Bucle de funcionamiento
     {
+        /* -----------------------------------------------------------------
+         * LOOP
+         * -----------------------------------------------------------------
+         */
+
         printf("----------------------------------\n\n");
 
         switch (estado)
@@ -142,7 +155,13 @@ void readIncomingCANMsg()
             data[nBMS * 14 + 1] = ((buf[2] << 8) + buf[3]) * 100;
 
             // Flags
-            data[nBMS * 14 + 2] = buf[4];
+            int flags = buf[4];
+
+            data[nBMS * 14 + 2] = flags & 0xFF; // Flag0
+            data[nBMS * 14 + 3] = flags & 0xFF; // Flag1
+            data[nBMS * 14 + 4] = flags & 0xFF; // Flag2
+            data[nBMS * 14 + 5] = flags & 0xFF; // Flag3
+            data[nBMS * 14 + 6] = flags & 0xFF; // Flag4
         }
 
         // Corregimos dirección para poder leer las direcciones de los BMS
@@ -172,34 +191,41 @@ void readIncomingCANMsg()
 }
 
 
-void saveData()
+void saveData() // Saves all data into file
 {
     FILE *file;
+    char date[50];
 
-    file = fopen(fileName, "w+");
+    getTime(date);
+
+    file = fopen("data/" + date + ".txt", "w+");
     fprintf(file, "[");
 
-    for (int i = 0; i < nBMS; i++)
+    for (int i = 0; i < nDatos - 1; i++)
     {
-        for (int j = 0; j < 14; j++)
-        {
-            fprintf(file, " %d ,", data[14 * i + j]);
-        }
+        fprintf(file, " %d ,", data[i]);
     }
 
-    fprintf(file, " %d , %d , %d ]", data[14 * nBMS], data[14 * nBMS + 1], data[14 * nBMS + 2]);
+    fprintf(file, " %d ]", data[nDatos - 1]);
     fclose(file);
 }
 
 
-void queryAll(int charge)
+void queryAll(bool requestCharge)
 {
     for (int i = 0; i < nBMS; i++)
     {
         CAN.queryBMS(i, shuntVoltageMillivolts);
     }
-    CAN.queryCharger(tensionMaxCarga, intensidadMaxCarga, chargerID, 0);
-    // Falta rellenar el resto de datos
+
+    if (requestCharge)
+    {
+        CAN.queryCharger(tensionMaxCarga, intensidadMaxCarga, chargerID, 1);
+    }
+    else
+    {
+        CAN.queryCharger(tensionMaxCarga, intensidadMaxCarga, chargerID, 0);
+    }
 }
 
 
@@ -207,7 +233,7 @@ int checkCellsOK()                   // Checks cells V and Temp
 {
     for (int i = 0; i < nBMS; i++)   // Num BMS
     {
-        for (int j = 0; j < 12; j++) // Num Celda
+        for (int j = 0; j < 12; j++) // Num CelL
         {
             int v = data[i * 14 + j];
 
@@ -228,6 +254,20 @@ int checkCellsOK()                   // Checks cells V and Temp
     }
 
     return 0;
+}
+
+
+void getTime(char *dateString)
+{
+    time_t curr_time;
+    tm     *curr_tm;
+    char   date_string[100];
+    char   time_string[100];
+
+    time(&curr_time);
+    curr_tm = localtime(&curr_time);
+
+    strftime(dateString, 50, "20%y-%m-%d-%H-%M-%S", curr_tm);
 }
 
 
