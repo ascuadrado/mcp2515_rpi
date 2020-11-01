@@ -116,7 +116,7 @@ void readIncomingCANMsg()
 			data[nBMS * 14 + 2] = buf[4];
 		}
 
-		canId = canId & 0xFFFFFFF;
+		canId = canId & 0x1FFFFFFF;
 
 		if ((canId > 300) && (canId < 300 + 16 * 10)) // BMS
 		{
