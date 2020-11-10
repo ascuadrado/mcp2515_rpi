@@ -1,9 +1,7 @@
 /*
- * 4Ejemplo_basico.cxx
+ * 4DosBusCan.cxx
  * Alberto Sánchez Cuadrado
  *
- * Ejemplo con interrupciones:
- *    Muestra cualquier mensaje que llegue
  *
  * Conexiones:
  * Usaremos el bus SPI nº 0 de la Raspberry Pi
@@ -28,8 +26,8 @@
 #define DEBUG_MODE    1
 
 // Pin de interrupciones es GPIO 25
-#define IntPIN0        25
-#define IntPIN1        24
+#define IntPIN0       25
+#define IntPIN1       24
 
 void printCANMsg0();
 void printCANMsg1();
@@ -47,7 +45,7 @@ int main()
      */
 
     printf("Welcome\n\n");
-        wiringPiSetup();
+    wiringPiSetup();
 
 
     // Inicialización de los pines GPIO y del bus SPI en la Raspberry Pi
@@ -75,7 +73,7 @@ int main()
     }
     printf("CAN BUS Shield 1 init ok!\n");   // El bus ya está funcionando
     CAN1.setMode(MCP_NORMAL);
-    
+
     while (CAN_OK != CAN0.begin(MCP_ANY, CAN_500KBPS, MCP_8MHZ))
     {
         printf("CAN BUS Shield 0 init fail\n");
@@ -84,12 +82,12 @@ int main()
     }
     printf("CAN BUS Shield 0 init ok!\n");   // El bus ya está funcionando
     CAN0.setMode(MCP_NORMAL);
-    
-    
+
+
 
     // Los 2 bytes que vamos a enviar por el bus CAN
-    uint8_t data0[8] = { 0, 1, 2, 3, 4, 5, 6, 7};
-    uint8_t data1[8] = { 0, 1, 2, 3, 4, 5, 6, 7};
+    uint8_t data0[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
+    uint8_t data1[8] = { 0, 1, 2, 3, 4, 5, 6, 7 };
 
     while (1)
     {
@@ -97,15 +95,15 @@ int main()
          * LOOP
          * -----------------------------------------------------------------
          */
-        data0[1] = data0[1]+1;
-        data1[1] = data1[1]+1;
-        
+        data0[1] = data0[1] + 1;
+        data1[1] = data1[1] + 1;
+
         int result0 = CAN0.sendMsgBuf(0x12C, 1, 8, data0);
         printf("\n\nMessage sent from CAN 0: %d\n", result0);
-        
-                usleep(2000000);
 
-        
+        usleep(2000000);
+
+
         int result1 = CAN1.sendMsgBuf(0x12D, 1, 8, data1);
         printf("\n\nMessage sent from CAN 1: %d\n", result1);
 
@@ -126,7 +124,7 @@ void printCANMsg0()
         // INT8U MCP_CAN::readMsgBuf(INT32U *id, INT8U *len, INT8U buf[])
         // Read data rellena canId, len y guarda los datos en buf
         CAN0.readMsgBuf(&canId, &len, &buf[0]);
-        
+
         canId = canId & 0x1FFFFFFF;
         printf("-----------------------------\n");
         printf("get data from ID: %lu | len:%d\n", canId, len);
@@ -138,6 +136,7 @@ void printCANMsg0()
         }
     }
 }
+
 
 void printCANMsg1()
 {
@@ -150,7 +149,7 @@ void printCANMsg1()
         // INT8U MCP_CAN::readMsgBuf(INT32U *id, INT8U *len, INT8U buf[])
         // Read data rellena canId, len y guarda los datos en buf
         CAN1.readMsgBuf(&canId, &len, &buf[0]);
-        
+
         canId = canId & 0x1FFFFFFF;
         printf("-----------------------------\n");
         printf("get data from ID: %lu | len:%d\n", canId, len);
@@ -162,5 +161,6 @@ void printCANMsg1()
         }
     }
 }
+
 
 // ---------------------------------------------------------------------------
